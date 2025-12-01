@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: searchengine
+    env: docker
+    plan: starter
+    repo: https://github.com/YOUR_GITHUB_USERNAME/searchengine
+    branch: main
+    rootDir: /
+    healthCheckPath: /
