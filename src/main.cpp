@@ -7,91 +7,97 @@
 #include <sstream>
 #include <string>
 
+// ===== Week 3 includes =====
+#include "tokenizer.h"
+#include "stopwords.h"
+
 namespace fs = std::filesystem;
 
-int main() {
-    try {
-        // ========== STEP 1: CRAWLING ==========
+int main()
+{
+    try
+    {
+        // ============================================================
+        // STEP 1: CRAWLING
+        // ============================================================
         std::cout << "[INFO] Starting crawler...\n";
 
-        Crawler crawler(10);                     // number of threads/pages
+        Crawler crawler(5);
         crawler.addSeedUrl("https://example.com");
-        crawler.start();                         // must block until crawling finishes
+        crawler.start(); // blocking
 
         std::cout << "[INFO] Crawling finished.\n";
 
-
-        
-
-        // ========== STEP 2: TEXT EXTRACTION ==========
-        std::string rawPath   = "D:/Projects/searchengine/data/raw";
+        // ============================================================
+        // STEP 2: HTML PARSING + CLEAN TEXT EXTRACTION
+        // ============================================================
+        std::string rawPath = "D:/Projects/searchengine/data/raw";
         std::string cleanPath = "D:/Projects/searchengine/data/clean";
+        std::string tokenPath = "D:/Projects/searchengine/data/tokens";
 
-        // Ensure clean directory exists
+        // Ensure output directories exist
         fs::create_directories(cleanPath);
+        fs::create_directories(tokenPath);
 
         std::cout << "[INFO] Starting text extraction from: " << rawPath << "\n";
 
         size_t fileCount = 0;
 
-        for (const auto& entry : fs::directory_iterator(rawPath)) {
-            if (!entry.is_regular_file()) continue;
-            if (entry.path().extension() != ".html") continue;
+        for (const auto &entry : fs::directory_iterator(rawPath))
+        {
+            if (!entry.is_regular_file())
+                continue;
+            if (entry.path().extension() != ".html")
+                continue;
 
-            // Read raw HTML file
+            // Read HTML file
             std::ifstream fin(entry.path(), std::ios::binary);
-            if (!fin) {
+            if (!fin)
+            {
                 std::cerr << "[WARN] Failed to open: " << entry.path() << "\n";
                 continue;
             }
 
             std::string html(
                 (std::istreambuf_iterator<char>(fin)),
-                 std::istreambuf_iterator<char>()
-            );
+                std::istreambuf_iterator<char>());
 
-            // Parse HTML with advanced parser
             ParsedHTML parsed = parseHTML(html);
 
-            // ========== Build final structured output format ==========
+            // Build formatted clean output
             std::ostringstream out;
 
             out << "Title: " << parsed.title << "\n\n";
-
             out << "Meta Description: " << parsed.meta_description << "\n\n";
 
             out << "Headings:\n";
-            for (const auto &h : parsed.headings) {
+            for (const auto &h : parsed.headings)
                 out << "- " << h << "\n";
-            }
             out << "\n";
 
             out << "Paragraphs:\n";
-            for (const auto &p : parsed.paragraphs) {
+            for (const auto &p : parsed.paragraphs)
                 out << "- " << p << "\n";
-            }
             out << "\n";
 
             out << "Links:\n";
-            for (const auto &l : parsed.links) {
+            for (const auto &l : parsed.links)
                 out << "- " << l << "\n";
-            }
             out << "\n";
 
-            out << "Clean Full Text:\n" << parsed.clean_text << "\n";
+            out << "Clean Full Text:\n"
+                << parsed.clean_text << "\n";
 
             std::string finalText = out.str();
 
-            // ========== Save cleaned output ==========
-            fs::path outPath = fs::path(cleanPath) / entry.path().stem();
-            outPath += ".txt";
-
+            // Save clean file
+            fs::path outPath = fs::path(cleanPath) / (entry.path().stem().string() + ".txt");
             std::ofstream fout(outPath, std::ios::binary);
-            if (!fout) {
-                std::cerr << "[WARN] Failed to write: " << outPath << "\n";
+            if (!fout)
+            {
+                std::cerr << "[WARN] Failed to write clean file: " << outPath << "\n";
                 continue;
             }
-
             fout << finalText;
             fout.close();
 
@@ -100,12 +106,85 @@ int main() {
         }
 
         std::cout << "[INFO] Text extraction finished. Processed " << fileCount << " files.\n";
+
+        // ============================================================
+        // STEP 3 (WEEK 3): TOKENIZATION + STEMMING + STOPWORD REMOVAL
+        // ============================================================
+
+        std::cout << "\n[INFO] Starting tokenization...\n";
+
+        // Load stopwords
+        StopwordLoader stopwords;
+        stopwords.load("config/stopwords.txt");
+
+        // Create tokenizer
+        Tokenizer tokenizer(stopwords);
+
+        size_t tokenFileCount = 0;
+
+        // Loop clean text directory
+        for (const auto &entry : fs::directory_iterator(cleanPath))
+        {
+            if (!entry.is_regular_file())
+                continue;
+            if (entry.path().extension() != ".txt")
+                continue;
+
+            std::ifstream fin(entry.path());
+            if (!fin)
+            {
+                std::cerr << "[WARN] Failed to read clean file: " << entry.path() << "\n";
+                continue;
+            }
+
+            // read full clean text
+            std::stringstream buffer;
+            buffer << fin.rdbuf();
+            std::string text = buffer.str();
+
+            // tokenize
+            std::vector<std::string> tokens = tokenizer.process(text);
+
+            // save token file
+            // Define base directory for tokens
+            std::string TOKEN_BASE_DIR = "D:/Projects/searchengine/data/tokens";
+
+            // Make sure directory exists
+            fs::create_directories(TOKEN_BASE_DIR);
+
+            // Build final output file path
+            fs::path tokenOutPath = fs::path(TOKEN_BASE_DIR) / (entry.path().stem().string() + ".tokens.txt");
+
+            // Save tokens
+            std::ofstream fout(tokenOutPath);
+            if (!fout)
+            {
+                std::cerr << "[WARN] Failed to write tokens: " << tokenOutPath << "\n";
+                continue;
+            }
+
+            for (auto &t : tokens)
+            {
+                fout << t << "\n";
+            }
+
+            fout.close();
+
+            std::cout << "[TOKENS] Saved: " << tokenOutPath.string()
+                      << " (" << tokens.size() << " tokens)\n";
+
+            ++tokenFileCount;
+        }
+
+        std::cout << "[INFO] Tokenization complete. Processed " << tokenFileCount << " files.\n";
     }
-    catch (const std::exception& ex) {
+    catch (const std::exception &ex)
+    {
         std::cerr << "[ERROR] Exception: " << ex.what() << "\n";
         return 1;
     }
-    catch (...) {
+    catch (...)
+    {
         std::cerr << "[ERROR] Unknown exception.\n";
         return 1;
     }
