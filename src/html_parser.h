@@ -2,8 +2,17 @@
 #define HTML_PARSER_H
 
 #include <string>
+#include <vector>
 
-std::string extractText(const std::string &html);
-std::string stripTag(const std::string &html, const std::string &tag);
+struct ParsedHTML {
+    std::string title;
+    std::string meta_description;
+    std::vector<std::string> headings;
+    std::vector<std::string> paragraphs;
+    std::vector<std::string> links;
+    std::string clean_text;
+};
+
+ParsedHTML parseHTML(const std::string &html);
 
 #endif

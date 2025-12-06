@@ -4,6 +4,7 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <string>
 
 namespace fs = std::filesystem;
@@ -13,11 +14,14 @@ int main() {
         // ========== STEP 1: CRAWLING ==========
         std::cout << "[INFO] Starting crawler...\n";
 
-        Crawler crawler(10);                     // 10 = max pages / threads (depending on your implementation)
+        Crawler crawler(10);                     // number of threads/pages
         crawler.addSeedUrl("https://example.com");
-        crawler.start();                         // Make sure this blocks until crawling is finished
+        crawler.start();                         // must block until crawling finishes
 
         std::cout << "[INFO] Crawling finished.\n";
+
+
+        
 
         // ========== STEP 2: TEXT EXTRACTION ==========
         std::string rawPath   = "D:/Projects/searchengine/data/raw";
@@ -46,10 +50,39 @@ int main() {
                  std::istreambuf_iterator<char>()
             );
 
-            // Extract clean text using your html_parser logic
-            std::string text = extractText(html);
+            // Parse HTML with advanced parser
+            ParsedHTML parsed = parseHTML(html);
 
-            // Save cleaned output
+            // ========== Build final structured output format ==========
+            std::ostringstream out;
+
+            out << "Title: " << parsed.title << "\n\n";
+
+            out << "Meta Description: " << parsed.meta_description << "\n\n";
+
+            out << "Headings:\n";
+            for (const auto &h : parsed.headings) {
+                out << "- " << h << "\n";
+            }
+            out << "\n";
+
+            out << "Paragraphs:\n";
+            for (const auto &p : parsed.paragraphs) {
+                out << "- " << p << "\n";
+            }
+            out << "\n";
+
+            out << "Links:\n";
+            for (const auto &l : parsed.links) {
+                out << "- " << l << "\n";
+            }
+            out << "\n";
+
+            out << "Clean Full Text:\n" << parsed.clean_text << "\n";
+
+            std::string finalText = out.str();
+
+            // ========== Save cleaned output ==========
             fs::path outPath = fs::path(cleanPath) / entry.path().stem();
             outPath += ".txt";
 
@@ -59,7 +92,7 @@ int main() {
                 continue;
             }
 
-            fout << text;
+            fout << finalText;
             fout.close();
 
             std::cout << "[OK] Extracted: " << outPath.string() << "\n";
