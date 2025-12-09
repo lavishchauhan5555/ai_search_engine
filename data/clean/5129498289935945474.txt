@@ -1,0 +1,56 @@
+Title: Example Domains
+
+Meta Description: 
+
+Headings:
+- Example Domains
+- Further Reading
+
+Paragraphs:
+- As described in <a href="/go/rfc2606">RFC 2606</a> and <a href="/go/rfc6761">RFC 6761</a>, a
+number of domains such as example.com and example.org are maintained
+for documentation purposes. These domains may be used as illustrative
+examples in documents without prior coordination with us. They are not
+available for registration or transfer.
+- We provide a web service on the example domain hosts to provide basic
+information on the purpose of the domain. These web services are
+provided as best effort, but are not designed to support production
+applications. While incidental traffic for incorrectly configured
+applications is expected, please do not design applications that require
+the example domains to have operating HTTP service.
+- The IANA functions coordinate the Internet’s globally unique identifiers, and
+                are provided by <a href="https://pti.icann.org">Public Technical Identifiers</a>, an affiliate of
+                <a href="https://www.icann.org/">ICANN</a>.
+
+Links:
+- /
+- /domains
+- /protocols
+- /numbers
+- /about
+- /go/rfc2606
+- /go/rfc6761
+- /domains/reserved
+- /domains
+- /domains/root
+- /domains/int
+- /domains/arpa
+- /domains/idn-tables
+- /numbers
+- /abuse
+- /protocols
+- /protocols
+- /time-zones
+- /about
+- /news
+- /performance
+- /about/excellence
+- /archive
+- /contact
+- https://pti.icann.org
+- https://www.icann.org/
+- https://www.icann.org/privacy/policy
+- https://www.icann.org/privacy/tos
+
+Clean Full Text:
+ Example Domains Domains Protocols Numbers About Example Domains As described in RFC 2606 and RFC 6761 , a number of domains such as example.com and example.org are maintained for documentation purposes. These domains may be used as illustrative examples in documents without prior coordination with us. They are not available for registration or transfer. We provide a web service on the example domain hosts to provide basic information on the purpose of the domain. These web services are provided as best effort, but are not designed to support production applications. While incidental traffic for incorrectly configured applications is expected, please do not design applications that require the example domains to have operating HTTP service. Further Reading IANA-managed Reserved Domains Last revised 2017-05-13. Domain&nbsp;Names Root Zone Registry .INT Registry .ARPA Registry IDN Repository Number&nbsp;Resources Abuse Information Protocols Protocol Registries Time Zone Database About&nbsp;Us News Performance Excellence Archive Contact Us The IANA functions coordinate the Internet’s globally unique identifiers, and are provided by Public Technical Identifiers , an affiliate of ICANN . Privacy Policy Terms of Service 

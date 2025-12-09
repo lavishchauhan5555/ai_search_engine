@@ -10,6 +10,7 @@
 // ===== Week 3 includes =====
 #include "tokenizer.h"
 #include "stopwords.h"
+#include "indexer.h"
 
 namespace fs = std::filesystem;
 
@@ -22,7 +23,7 @@ int main()
         // ============================================================
         std::cout << "[INFO] Starting crawler...\n";
 
-        Crawler crawler(5);
+        Crawler crawler(2);
         crawler.addSeedUrl("https://example.com");
         crawler.start(); // blocking
 
@@ -177,6 +178,17 @@ int main()
         }
 
         std::cout << "[INFO] Tokenization complete. Processed " << tokenFileCount << " files.\n";
+         // indexer fouth week task
+
+
+   Indexer idx;
+
+    idx.buildIndex("D:/Projects/searchengine/data/tokens");
+    idx.saveIndex("D:/Projects/searchengine/data/index");
+
+    std::cout << "Index built successfully.\n";
+
+
     }
     catch (const std::exception &ex)
     {
@@ -188,6 +200,8 @@ int main()
         std::cerr << "[ERROR] Unknown exception.\n";
         return 1;
     }
+  
 
+   
     return 0;
 }
